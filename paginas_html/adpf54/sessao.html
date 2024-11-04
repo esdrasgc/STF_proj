@@ -1,0 +1,44 @@
+<!-- https://portal.stf.jus.br/processos/abaSessao.asp?incidente=2226954 -->
+
+
+<input type="hidden" id="env" value="p">
+<div class="col-12">
+    <div class="col-12">
+        <script>                     
+            $.ajax({
+                type    : "GET",
+                dataType: 'json',                
+                url     : "https://sistemas.stf.jus.br/repgeral/votacao?oi=2226954",
+                cache   :  true,
+                crossDomain: true,
+                success : function(data){                  
+                    var html = "";                        
+                    if (data.length == 0){
+                        html += '<div id="semJulgamento" class="julgamento-item">' +
+                                '   <div class="btn btn-lista">' +
+                                '       <span class="listasSemJulgamento" id="listasSemJulgamento"></span>' +
+                                '       <span class="processo-detalhes-bold" id="cabecalhoVotacaolistasSemJulgamento">Sem sessão virtual</span><br>' +
+                                '   </div>' +
+                                '</div>';
+                    } else {
+                        for (i in data){
+                            html += '<div id="1020-'+ i +'" class="julgamento-item">' +
+                                    '   <button onclick="carregaSessaoVirtual('+ data[i].objetoIncidente.id +')" type="button" name="btnmaismenos'+ i +'" class="btn btn-lista" data-bs-toggle="collapse" data-bs-target="#listasJulgamento'+data[i].objetoIncidente.id+'" aria-expanded="false" aria-controls="listasJulgamento'+data[i].objetoIncidente.id+' semvoto spanmais'+ i +' spanmenos'+ i +'" >' +
+                                    '       <span class="tooltip-lista font-grey-dark m-r-8" ><i class="fas fa-gavel"></i></span>' +
+                                    '       <span class="processo-detalhes-bold" id="cabecalhoVotacao'+ i +'">' +           
+                                                data[i].objetoIncidente.identificacaoCompleta +
+                                    '       </span>'+                                    
+                                    '   </button>'+
+                                    '   <div id="listasJulgamento'+data[i].objetoIncidente.id+'"></div>'+
+                                    '</div>';
+                        }
+                        
+                    }
+                    document.getElementById("votacoes").innerHTML += html;
+                }
+            })
+        </script>           
+        <div id="votacoes"></div>        
+        <script src="listasJulgamento.js"></script>        
+    </div>
+</div>

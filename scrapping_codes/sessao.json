@@ -1,0 +1,107 @@
+{
+    "identificacao": "A\u00c7\u00c3O DIRETA DE INCONSTITUCIONALIDADE 5389",
+    "processo": "ADI 5389",
+    "sustentacoes_orais": [
+        {
+            "advogado": "ROBSON BARBOSA",
+            "parte": "ASSOCIA\u00c7\u00c3O DOS MAGISTRADOS BRASILEIROS - AMB",
+            "link": "https://digital.stf.jus.br/autosprocessuais-anexos/api/public/processos/anexos/6451fe002da22e9a7e96f08c0b7c55919774f4d0f71be59d7fc8279a7c20d084"
+        },
+        {
+            "advogado": "Jo\u00e3o Pedro Carvalho",
+            "parte": "ADVOGADO-GERAL DA UNI\u00c3O",
+            "link": "https://digital.stf.jus.br/autosprocessuais-anexos/api/public/processos/anexos/a989236432dc390ddf0d148285c45c42bdc5cfd1a5de08311155a17727ce0959"
+        },
+        {
+            "advogado": "Fellipe Matheus da Cunha Gon\u00e7alves",
+            "parte": "ASSOCIA\u00c7\u00c3O DOS JU\u00cdZES FEDERAIS DO BRASIL - AJUFE",
+            "link": "https://digital.stf.jus.br/autosprocessuais-anexos/api/public/processos/anexos/fe3e6c541036342e650939e7fb6fc12828daa86018716ddf7eaff41b24ea7eba"
+        }
+    ],
+    "listas_julgamento": [
+        {
+            "data_prevista_inicio": "11/10/2024",
+            "relator": "MIN. DIAS TOFFOLI",
+            "orgao_julgador": "Plen\u00e1rio",
+            "nome_lista": "561-2024",
+            "texto_decisao": "ADI 5389: Decis\u00e3o: O Tribunal, por maioria, julgou improcedente a a\u00e7\u00e3o direta e fixou a seguinte tese de julgamento: \u201cA Lei n\u00ba 13.134/15, relativamente aos prazos de car\u00eancia do seguro-desemprego e ao per\u00edodo m\u00e1ximo vari\u00e1vel de concess\u00e3o do seguro-defeso, e a Lei n\u00ba 13.135/15, na parte em que disciplinou, no \u00e2mbito da pens\u00e3o por morte destinada a c\u00f4njuges ou companheiros, car\u00eancia, per\u00edodo m\u00ednimo de casamento ou de uni\u00e3o est\u00e1vel e per\u00edodo de concess\u00e3o do benef\u00edcio, n\u00e3o importaram em viola\u00e7\u00e3o do princ\u00edpio da proibi\u00e7\u00e3o do retrocesso social ou, no tocante \u00e0 \u00faltima lei, em ofensa ao princ\u00edpio da isonomia\u201d. Tudo nos termos do voto do Relator, vencidos parcialmente os Ministros Edson Fachin, C\u00e1rmen L\u00facia e Fl\u00e1vio Dino. Falaram: pelo amicus curiae Associa\u00e7\u00e3o dos Ju\u00edzes Federais do Brasil \u2013 AJUFE, o Dr. Fellipe Matheus da Cunha Gon\u00e7alves; pelo amicus curiae Associa\u00e7\u00e3o dos Magistrados Brasileiros \u2013 AMB, o Dr. Robson Barbosa; e, pela Advocacia-Geral da Uni\u00e3o, o Dr. Jo\u00e3o Pedro Carvalho, Advogado da Uni\u00e3o. Plen\u00e1rio, Sess\u00e3o Virtual de 11.10.2024 a 18.10.2024.\n<br> ",
+            "votos": [
+                {
+                    "ministro": "MIN. ALEXANDRE DE MORAES",
+                    "tipo_voto": "Acompanho o relator",
+                    "voto_antecipado": "N\u00e3o",
+                    "acompanhando_ministro": null,
+                    "link_voto": []
+                },
+                {
+                    "ministro": "MIN. CRISTIANO ZANIN",
+                    "tipo_voto": "Acompanho o relator",
+                    "voto_antecipado": "N\u00e3o",
+                    "acompanhando_ministro": null,
+                    "link_voto": []
+                },
+                {
+                    "ministro": "MIN. EDSON FACHIN",
+                    "tipo_voto": "Divirjo do relator",
+                    "voto_antecipado": "N\u00e3o",
+                    "acompanhando_ministro": null,
+                    "link_voto": [
+                        {
+                            "descricao": "Voto Vogal",
+                            "link": "https://sistemas.stf.jus.br/repgeral/votacao?texto=6333697"
+                        }
+                    ]
+                },
+                {
+                    "ministro": "MIN. C\u00c1RMEN L\u00daCIA",
+                    "tipo_voto": "Acompanho a diverg\u00eancia",
+                    "voto_antecipado": "N\u00e3o",
+                    "acompanhando_ministro": "MIN. EDSON FACHIN",
+                    "link_voto": []
+                },
+                {
+                    "ministro": "MIN. ANDR\u00c9 MENDON\u00c7A",
+                    "tipo_voto": "Acompanho o relator",
+                    "voto_antecipado": "N\u00e3o",
+                    "acompanhando_ministro": null,
+                    "link_voto": []
+                },
+                {
+                    "ministro": "MIN. FL\u00c1VIO DINO",
+                    "tipo_voto": "Acompanho a diverg\u00eancia",
+                    "voto_antecipado": "N\u00e3o",
+                    "acompanhando_ministro": "MIN. EDSON FACHIN",
+                    "link_voto": []
+                },
+                {
+                    "ministro": "MIN. LUIZ FUX",
+                    "tipo_voto": "Acompanho o relator",
+                    "voto_antecipado": "N\u00e3o",
+                    "acompanhando_ministro": null,
+                    "link_voto": []
+                },
+                {
+                    "ministro": "MIN. GILMAR MENDES",
+                    "tipo_voto": "Acompanho o relator",
+                    "voto_antecipado": "N\u00e3o",
+                    "acompanhando_ministro": null,
+                    "link_voto": []
+                },
+                {
+                    "ministro": "MIN. NUNES MARQUES",
+                    "tipo_voto": "Acompanho o relator",
+                    "voto_antecipado": "N\u00e3o",
+                    "acompanhando_ministro": null,
+                    "link_voto": []
+                },
+                {
+                    "ministro": "MIN. LU\u00cdS ROBERTO BARROSO",
+                    "tipo_voto": "Acompanho o relator",
+                    "voto_antecipado": "N\u00e3o",
+                    "acompanhando_ministro": null,
+                    "link_voto": []
+                }
+            ]
+        }
+    ]
+}

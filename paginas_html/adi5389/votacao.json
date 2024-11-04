@@ -1,0 +1,265 @@
+[ {
+    "objetoIncidente" : {
+      "id" : 4853600,
+      "identificacao" : "ADI 5389",
+      "identificacaoCompleta" : "AÇÃO DIRETA DE INCONSTITUCIONALIDADE 5389",
+      "principal" : 4853600,
+      "pai" : "",
+      "tipoObjetoIncidente" : {
+        "codigo" : "PR",
+        "descricao" : "Processo"
+      },
+      "cadeia" : ""
+    },
+    "listasJulgamento" : [ {
+      "id" : 174200,
+      "nomeLista" : "561-2024",
+      "julgado" : true,
+      "admiteSustentacaoOral" : true,
+      "ministroRelator" : {
+        "codigo" : "44",
+        "descricao" : "MIN. DIAS TOFFOLI"
+      },
+      "votoRelator" : {
+        "codigo" : "6309339",
+        "descricao" : "Voto",
+        "link" : "https://sistemas.stf.jus.br/repgeral/votacao?texto=6309339"
+      },
+      "relatorioRelator" : {
+        "codigo" : "6309341",
+        "descricao" : "Relatório",
+        "link" : "https://sistemas.stf.jus.br/repgeral/votacao?texto=6309341"
+      },
+      "complementoVotoRelator" : "",
+      "ministroDestaque" : "",
+      "ministroVista" : "",
+      "ministroVistor" : "",
+      "sessao" : {
+        "numero" : 34,
+        "ano" : 2024,
+        "colegiado" : {
+          "codigo" : "TP",
+          "descricao" : "Plenário"
+        },
+        "dataPrevistaInicio" : "11/10/2024",
+        "dataPrevistaFim" : "18/10/2024",
+        "dataInicio" : "11/10/2024",
+        "dataFim" : "18/10/2024",
+        "tipoJulgamentoVirtual" : "",
+        "tipoSessao" : {
+          "codigo" : "O",
+          "descricao" : "Sessão Ordinária"
+        }
+      },
+      "textoDecisao" : "ADI 5389: Decisão: O Tribunal, por maioria, julgou improcedente a ação direta e fixou a seguinte tese de julgamento: “A Lei nº 13.134/15, relativamente aos prazos de carência do seguro-desemprego e ao período máximo variável de concessão do seguro-defeso, e a Lei nº 13.135/15, na parte em que disciplinou, no âmbito da pensão por morte destinada a cônjuges ou companheiros, carência, período mínimo de casamento ou de união estável e período de concessão do benefício, não importaram em violação do princípio da proibição do retrocesso social ou, no tocante à última lei, em ofensa ao princípio da isonomia”. Tudo nos termos do voto do Relator, vencidos parcialmente os Ministros Edson Fachin, Cármen Lúcia e Flávio Dino. Falaram: pelo amicus curiae Associação dos Juízes Federais do Brasil – AJUFE, o Dr. Fellipe Matheus da Cunha Gonçalves; pelo amicus curiae Associação dos Magistrados Brasileiros – AMB, o Dr. Robson Barbosa; e, pela Advocacia-Geral da União, o Dr. João Pedro Carvalho, Advogado da União. Plenário, Sessão Virtual de 11.10.2024 a 18.10.2024.\n<br> ",
+      "cabecalho" : "\r\nA&Ccedil;&Atilde;O DIRETA DE INCONSTITUCIONALIDADE\r\n\r\n\r\nVoto: A&ccedil;&atilde;o direta julgada improcedente, com a fixa&ccedil;&atilde;o da seguinte tese de julgamento: &ldquo;A Lei n&ordm; 13.134/15, relativamente aos prazos de car&ecirc;ncia do seguro-desemprego e ao per&iacute;odo m&aacute;ximo vari&aacute;vel de concess&atilde;o do seguro-defeso, e a Lei n&ordm; 13.135/15, na parte em que disciplinou, no &acirc;mbito da pens&atilde;o por morte destinada a c&ocirc;njuges ou companheiros, car&ecirc;ncia, per&iacute;odo m&iacute;nimo de casamento ou de uni&atilde;o est&aacute;vel e per&iacute;odo de concess&atilde;o do benef&iacute;cio, n&atilde;o importaram em viola&ccedil;&atilde;o do princ&iacute;pio da proibi&ccedil;&atilde;o do retrocesso social ou, no tocante &agrave; &uacute;ltima lei, em ofensa ao princ&iacute;pio da isonomia&rdquo;.\r\n",
+      "tipoListaJulgamento" : {
+        "codigo" : "3",
+        "descricao" : "Listas dos Relatores em Ações de Controle Concentrado (Mérito)"
+      },
+      "tipoResultadoJulgamento" : {
+        "codigo" : "2",
+        "descricao" : "Decisão por maioria"
+      },
+      "votos" : [ {
+        "numeroOrdemVotoSessao" : 2,
+        "ministro" : {
+          "codigo" : "50",
+          "descricao" : "MIN. ALEXANDRE DE MORAES"
+        },
+        "dataVoto" : "11/10/2024",
+        "tipoVoto" : {
+          "codigo" : "9",
+          "descricao" : "Acompanho o relator"
+        },
+        "acompanhandoMinistro" : "",
+        "votoAntecipado" : "Não",
+        "textos" : [ ]
+      }, {
+        "numeroOrdemVotoSessao" : 4,
+        "ministro" : {
+          "codigo" : "53",
+          "descricao" : "MIN. CRISTIANO ZANIN"
+        },
+        "dataVoto" : "14/10/2024",
+        "tipoVoto" : {
+          "codigo" : "9",
+          "descricao" : "Acompanho o relator"
+        },
+        "acompanhandoMinistro" : "",
+        "votoAntecipado" : "Não",
+        "textos" : [ ]
+      }, {
+        "numeroOrdemVotoSessao" : 6,
+        "ministro" : {
+          "codigo" : "49",
+          "descricao" : "MIN. EDSON FACHIN"
+        },
+        "dataVoto" : "16/10/2024",
+        "tipoVoto" : {
+          "codigo" : "7",
+          "descricao" : "Divirjo do relator"
+        },
+        "acompanhandoMinistro" : "",
+        "votoAntecipado" : "Não",
+        "textos" : [ {
+          "codigo" : "6333697",
+          "descricao" : "Voto Vogal",
+          "link" : "https://sistemas.stf.jus.br/repgeral/votacao?texto=6333697"
+        } ]
+      }, {
+        "numeroOrdemVotoSessao" : 7,
+        "ministro" : {
+          "codigo" : "42",
+          "descricao" : "MIN. CÁRMEN LÚCIA"
+        },
+        "dataVoto" : "17/10/2024",
+        "tipoVoto" : {
+          "codigo" : "8",
+          "descricao" : "Acompanho a divergência"
+        },
+        "acompanhandoMinistro" : {
+          "codigo" : "49",
+          "descricao" : "MIN. EDSON FACHIN"
+        },
+        "votoAntecipado" : "Não",
+        "textos" : [ ]
+      }, {
+        "numeroOrdemVotoSessao" : 9,
+        "ministro" : {
+          "codigo" : "52",
+          "descricao" : "MIN. ANDRÉ MENDONÇA"
+        },
+        "dataVoto" : "18/10/2024",
+        "tipoVoto" : {
+          "codigo" : "9",
+          "descricao" : "Acompanho o relator"
+        },
+        "acompanhandoMinistro" : "",
+        "votoAntecipado" : "Não",
+        "textos" : [ ]
+      }, {
+        "numeroOrdemVotoSessao" : 10,
+        "ministro" : {
+          "codigo" : "54",
+          "descricao" : "MIN. FLÁVIO DINO"
+        },
+        "dataVoto" : "18/10/2024",
+        "tipoVoto" : {
+          "codigo" : "8",
+          "descricao" : "Acompanho a divergência"
+        },
+        "acompanhandoMinistro" : {
+          "codigo" : "49",
+          "descricao" : "MIN. EDSON FACHIN"
+        },
+        "votoAntecipado" : "Não",
+        "textos" : [ ]
+      }, {
+        "numeroOrdemVotoSessao" : 12,
+        "ministro" : {
+          "codigo" : "45",
+          "descricao" : "MIN. LUIZ FUX"
+        },
+        "dataVoto" : "18/10/2024",
+        "tipoVoto" : {
+          "codigo" : "9",
+          "descricao" : "Acompanho o relator"
+        },
+        "acompanhandoMinistro" : "",
+        "votoAntecipado" : "Não",
+        "textos" : [ ]
+      }, {
+        "numeroOrdemVotoSessao" : 13,
+        "ministro" : {
+          "codigo" : "36",
+          "descricao" : "MIN. GILMAR MENDES"
+        },
+        "dataVoto" : "18/10/2024",
+        "tipoVoto" : {
+          "codigo" : "9",
+          "descricao" : "Acompanho o relator"
+        },
+        "acompanhandoMinistro" : "",
+        "votoAntecipado" : "Não",
+        "textos" : [ ]
+      }, {
+        "numeroOrdemVotoSessao" : 14,
+        "ministro" : {
+          "codigo" : "51",
+          "descricao" : "MIN. NUNES MARQUES"
+        },
+        "dataVoto" : "18/10/2024",
+        "tipoVoto" : {
+          "codigo" : "9",
+          "descricao" : "Acompanho o relator"
+        },
+        "acompanhandoMinistro" : "",
+        "votoAntecipado" : "Não",
+        "textos" : [ ]
+      }, {
+        "numeroOrdemVotoSessao" : 15,
+        "ministro" : {
+          "codigo" : "48",
+          "descricao" : "MIN. LUÍS ROBERTO BARROSO"
+        },
+        "dataVoto" : "19/10/2024",
+        "tipoVoto" : {
+          "codigo" : "9",
+          "descricao" : "Acompanho o relator"
+        },
+        "acompanhandoMinistro" : "",
+        "votoAntecipado" : "Não",
+        "textos" : [ ]
+      } ]
+    } ],
+    "sustentacoesOrais" : [ {
+      "dataEnvio" : "08/10/2024",
+      "pessoaRepresentada" : {
+        "codigo" : "1828447",
+        "descricao" : "ASSOCIAÇÃO DOS MAGISTRADOS BRASILEIROS - AMB"
+      },
+      "pessoaRepresentante" : {
+        "codigo" : "15957544",
+        "descricao" : "ROBSON BARBOSA"
+      },
+      "tipoManifestacao" : {
+        "codigo" : "SO",
+        "descricao" : "Sustentação Oral"
+      },
+      "hashArquivo" : "6451fe002da22e9a7e96f08c0b7c55919774f4d0f71be59d7fc8279a7c20d084",
+      "link" : "https://digital.stf.jus.br/autosprocessuais-anexos/api/public/processos/anexos/6451fe002da22e9a7e96f08c0b7c55919774f4d0f71be59d7fc8279a7c20d084"
+    }, {
+      "dataEnvio" : "07/10/2024",
+      "pessoaRepresentada" : {
+        "codigo" : "137643",
+        "descricao" : "ADVOGADO-GERAL DA UNIÃO"
+      },
+      "pessoaRepresentante" : {
+        "codigo" : "15955548",
+        "descricao" : "João Pedro Carvalho"
+      },
+      "tipoManifestacao" : {
+        "codigo" : "SO",
+        "descricao" : "Sustentação Oral"
+      },
+      "hashArquivo" : "a989236432dc390ddf0d148285c45c42bdc5cfd1a5de08311155a17727ce0959",
+      "link" : "https://digital.stf.jus.br/autosprocessuais-anexos/api/public/processos/anexos/a989236432dc390ddf0d148285c45c42bdc5cfd1a5de08311155a17727ce0959"
+    }, {
+      "dataEnvio" : "08/10/2024",
+      "pessoaRepresentada" : {
+        "codigo" : "1915661",
+        "descricao" : "ASSOCIAÇÃO DOS JUÍZES FEDERAIS DO BRASIL - AJUFE"
+      },
+      "pessoaRepresentante" : {
+        "codigo" : "15957744",
+        "descricao" : "Fellipe Matheus da Cunha Gonçalves"
+      },
+      "tipoManifestacao" : {
+        "codigo" : "SO",
+        "descricao" : "Sustentação Oral"
+      },
+      "hashArquivo" : "fe3e6c541036342e650939e7fb6fc12828daa86018716ddf7eaff41b24ea7eba",
+      "link" : "https://digital.stf.jus.br/autosprocessuais-anexos/api/public/processos/anexos/fe3e6c541036342e650939e7fb6fc12828daa86018716ddf7eaff41b24ea7eba"
+    } ]
+  } ]
