@@ -84,9 +84,12 @@ aba_2_url_dict = {
 def salvar_dados_mongo(dados, id, colecao):
     # Obtém a coleção
     col = MongoDBDatabase.get_db()[colecao]
-    dados['id_incidente'] = int(id) 
+    registro = list(dados.values())[0]
+    # registro['id_incidente'] = int(id) 
     # Insere os dados no MongoDB
-    col.insert_one(dados)
+    col.insert_one({'id_incidente': int(id), 'dados' : registro})
+    processos_unificado = MongoDBDatabase.get_db().processos_unificados
+    processos_unificado.update_one({'id_incidente': int(id)}, {'$set': dados})
 
 def processar_sessao_virtual_e_salvar(info_sessoes_virtuais, sessao_virtual_id):
     print(f"Processando a sessão virtual {sessao_virtual_id}...")

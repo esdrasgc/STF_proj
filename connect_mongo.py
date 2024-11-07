@@ -1,4 +1,4 @@
-from pymongo import MongoClient
+from pymongo import MongoClient, ASCENDING
 from dotenv import load_dotenv
 import os
 
@@ -20,6 +20,11 @@ class MongoDBDatabase:
     def init_db(cls):
         cls.client = MongoClient(f"mongodb://{cls.username}:{cls.password}@{cls.host}:{cls.port}/")
         cls.db = cls.client[cls.database]
+
+        # Criar índice para o campo id_incidente
+        cls.db.processos.create_index([("id_incidente", ASCENDING)])
+        cls.db.processos_unificados.create_index([("id_incidente", ASCENDING)])
+
         return cls.db
 
     @classmethod
