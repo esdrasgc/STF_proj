@@ -165,6 +165,8 @@ def salvar_processo_mongo(processo, id):
     colecao = db.processos
     processo['id_incidente'] = int(id)
     colecao.insert_one(processo)
+    colecao = db.processos_unificados
+    colecao.insert_one(processo)
 
 def main():
     print("Iniciando o worker...")
