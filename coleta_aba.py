@@ -8,6 +8,7 @@ from scrapping_codes.partes import coletar_partes
 from scrapping_codes.recursos import coletar_recursos
 from scrapping_codes.sessao import coletar_sessao_virtual
 
+from requests.exceptions import RequestException
 import os
 import time
 from connect_mongo import MongoDBDatabase
@@ -131,7 +132,15 @@ def processar_mensagem_aba(msg):
     
     # Realiza a requisição HTTP
     session = requests.Session()
-    response = session.get(url + incidente, headers={"User-Agent": str(FakeUserAgent.get_ua().random)})
+    realizando_request = True
+    while realizando_request:
+        try:
+            response = session.get(url + incidente, headers={"User-Agent": str(FakeUserAgent.get_ua().random)}, timeout=13)
+            realizando_request = False
+        except RequestException as e:
+            print(f'Falha {e} para o incidente {incidente}. Tentando novamente em 5 segundos...')
+            time.sleep(5)
+            realizando_request = True
     
     # Verifica se a requisição foi bem-sucedida
     if response.status_code == 200:
