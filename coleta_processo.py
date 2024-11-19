@@ -7,6 +7,7 @@ from fake_useragent import UserAgent
 from connect_mongo import MongoDBDatabase
 import time
 import os
+from requests.exceptions import RequestException
 # from dotenv import load_dotenv
 
 # load_dotenv()
@@ -143,7 +144,15 @@ def processar_mensagem(msg):
     id = msg.key().decode('utf-8')
     url = f'https://portal.stf.jus.br/processos/verImpressao.asp?imprimir=true&incidente={id}'
     session = requests.Session()
-    response = session.get(url, headers={"User-Agent": str(FakeUserAgent.get_ua().random)})
+    realizando_request = True
+    while realizando_request:
+        try:
+            response = session.get(url, headers={"User-Agent": str(FakeUserAgent.get_ua().random)}, timeout=13)
+            realizando_request = False
+        except RequestException as e:
+            print(f'Falha {e} para o incidente {id}. Tentando novamente em 5 segundos...')
+            time.sleep(5)
+            realizando_request = True
     producer = ProducerKafka.get_producer()
     if response.status_code != 200:
         producer.produce('ids_processo', None, str(id))
