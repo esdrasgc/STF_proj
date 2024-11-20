@@ -114,6 +114,7 @@ services:
       - mongo
     networks:
       - rede_stf_proj
+    restart: always
 
   coleta_aba:
     build:
@@ -132,6 +133,11 @@ services:
       - mongo
     networks:
       - rede_stf_proj
+    restart: always
+    deploy:
+      mode: replicated
+      replicas: 4
+      endpoint_mode: vip
 
 networks:
   rede_stf_proj:
