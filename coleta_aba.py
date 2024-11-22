@@ -12,6 +12,7 @@ from requests.exceptions import RequestException
 import os
 import time
 from connect_mongo import MongoDBDatabase
+from shared_code import change_ip
 
 class ProducerKafka:
     producer = None
@@ -157,7 +158,8 @@ def processar_mensagem_aba(msg):
         print(f"Status code {response.status_code} para o incidente {incidente} e a aba {msg_value}")
         ProducerKafka.get_producer().produce('abas', msg_value, incidente)
         ProducerKafka.get_producer().flush()
-        time.sleep(60)
+        change_ip()
+        time.sleep(5)
 
 def main():
     print("Iniciando o worker...")
@@ -174,6 +176,7 @@ def main():
             processar_mensagem_aba(msg)
 
 if __name__ == '__main__':
+    change_ip()
     try:
         main()
     except KeyboardInterrupt:

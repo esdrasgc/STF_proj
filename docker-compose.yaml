@@ -38,9 +38,9 @@ services:
     #   timeout: 5s
     #   retries: 5
 
-  kafkacat:
-    image: confluentinc/cp-kafkacat
-    command: sleep infinity
+  # kafkacat:
+  #   image: confluentinc/cp-kafkacat
+  #   command: sleep infinity
 
   create_topics:
     build:
@@ -97,47 +97,47 @@ services:
     networks:
       - rede_stf_proj
 
-  coleta_processo:
-    build:
-      context: .
-      dockerfile: coleta_processo.Dockerfile
-    environment:
-      KAFKA_BROKER_HOST: kafka_broker
-      KAFKA_BROKER_PORT: 29092
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
-      MONGO_HOST: mongo
-      MONGO_PORT: 27017
-      MONGO_DB: ${MONGO_DB}
-    depends_on:
-      - kafka_broker
-      - mongo
-    networks:
-      - rede_stf_proj
-    restart: always
+  # coleta_processo:
+  #   build:
+  #     context: .
+  #     dockerfile: coleta_processo.Dockerfile
+  #   environment:
+  #     KAFKA_BROKER_HOST: kafka_broker
+  #     KAFKA_BROKER_PORT: 29092
+  #     MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+  #     MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+  #     MONGO_HOST: mongo
+  #     MONGO_PORT: 27017
+  #     MONGO_DB: ${MONGO_DB}
+  #   depends_on:
+  #     - kafka_broker
+  #     - mongo
+  #   networks:
+  #     - rede_stf_proj
+  #   restart: always
 
-  coleta_aba:
-    build:
-      context: .
-      dockerfile: coleta_aba.Dockerfile
-    environment:
-      KAFKA_BROKER_HOST: kafka_broker
-      KAFKA_BROKER_PORT: 29092
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
-      MONGO_HOST: mongo
-      MONGO_PORT: 27017
-      MONGO_DB: ${MONGO_DB}
-    depends_on:
-      - kafka_broker
-      - mongo
-    networks:
-      - rede_stf_proj
-    restart: always
-    deploy:
-      mode: replicated
-      replicas: 4
-      endpoint_mode: vip
+  # coleta_aba:
+  #   build:
+  #     context: .
+  #     dockerfile: coleta_aba.Dockerfile
+  #   environment:
+  #     KAFKA_BROKER_HOST: kafka_broker
+  #     KAFKA_BROKER_PORT: 29092
+  #     MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+  #     MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+  #     MONGO_HOST: mongo
+  #     MONGO_PORT: 27017
+  #     MONGO_DB: ${MONGO_DB}
+  #   depends_on:
+  #     - kafka_broker
+  #     - mongo
+  #   networks:
+  #     - rede_stf_proj
+  #   restart: always
+  #   deploy:
+  #     mode: replicated
+  #     replicas: 4
+  #     endpoint_mode: vip
 
 networks:
   rede_stf_proj:

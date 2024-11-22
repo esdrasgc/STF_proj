@@ -8,5 +8,6 @@ RUN pip install -r requirements.txt
 COPY scrapping_codes /app/scrapping_codes
 COPY coleta_aba.py /app/
 COPY connect_mongo.py /app/
+COPY shared_code.py /app/
 
 CMD ["python", "coleta_aba.py"]

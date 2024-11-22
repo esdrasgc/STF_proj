@@ -13,6 +13,7 @@ RUN pip install -r requirements.txt
 COPY scrapping_codes /app/scrapping_codes
 COPY coleta_processo.py /app/
 COPY connect_mongo.py /app/
+COPY shared_code.py /app/
 
 # Execute o script
 CMD ["python", "coleta_processo.py"]

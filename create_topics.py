@@ -23,4 +23,4 @@ def criar_topico(topico_nome, num_particoes, fator_replicacao):
 
 # Exemplo de uso
 criar_topico("ids_processo", num_particoes=1, fator_replicacao=1)
-criar_topico("abas", num_particoes=4, fator_replicacao=1)
+criar_topico("abas", num_particoes=1, fator_replicacao=1)

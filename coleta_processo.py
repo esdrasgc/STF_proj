@@ -9,14 +9,14 @@ import time
 import os
 from requests.exceptions import RequestException
 # from dotenv import load_dotenv
-
+from shared_code import change_ip
 # load_dotenv()
 
 class ConsumerIds:
     consumer = None
     topic = 'ids_processo'
     config = {
-        'bootstrap.servers': f'{os.getenv('KAFKA_BROKER_HOST')}:{os.getenv('KAFKA_BROKER_PORT')}',
+        'bootstrap.servers': f"{os.getenv('KAFKA_BROKER_HOST')}:{os.getenv('KAFKA_BROKER_PORT')}",
         'group.id': 'coleta_processos',
         'auto.offset.reset': 'earliest'
     }
@@ -158,7 +158,8 @@ def processar_mensagem(msg):
         producer.produce('ids_processo', None, str(id))
         producer.flush()
         print(f"Status code {response.status_code} para o incidente {id}")
-        time.sleep(60)
+        change_ip()
+        time.sleep(5)
     else:
         response.encoding = 'utf-8'
         central_info = coletar_central(response.text)
@@ -193,6 +194,7 @@ def main():
 
 
 if __name__ == '__main__':
+    change_ip()
     try:
         main()
     except KeyboardInterrupt:
