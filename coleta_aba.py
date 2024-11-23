@@ -13,6 +13,10 @@ import os
 import time
 from connect_mongo import MongoDBDatabase
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 class ProducerKafka:
     producer = None
     config = {
@@ -93,7 +97,7 @@ def salvar_dados_mongo(dados, id, colecao):
     processos_unificado.update_one({'id_incidente': int(id)}, {'$set': dados})
 
 def processar_sessao_virtual_e_salvar(info_sessoes_virtuais, sessao_virtual_id):
-    print(f"Processando a sessão virtual {sessao_virtual_id}...")
+    logger.info(f"Aba: sessao_virtual")
     lista_sessoes_virtuais = []
     for sessao_virtual in info_sessoes_virtuais:
         resultado_sessao_virtual = coletar_sessao_virtual(sessao_virtual["objetoIncidente"]['id'])
@@ -104,7 +108,7 @@ def processar_sessao_virtual_e_salvar(info_sessoes_virtuais, sessao_virtual_id):
     
 
 def processar_html_aba_e_salvar(html, id, tipo_aba):
-    print(f"Processando a aba {tipo_aba}...")
+    logger.info(f"Aba: {tipo_aba}")
     if tipo_aba == 'andamentos':
         dados = coletar_andamentos(html)
     elif tipo_aba == 'deslocamentos':
@@ -122,7 +126,6 @@ def processar_html_aba_e_salvar(html, id, tipo_aba):
 def processar_mensagem_aba(msg):
     # Obtém o incidente do processo
     incidente = msg.key().decode('utf-8')
-    print(f"Processando o incidente {incidente}...")
     
     # Obtém o valor da mensagem
     msg_value = msg.value().decode('utf-8')
@@ -138,7 +141,7 @@ def processar_mensagem_aba(msg):
             response = session.get(url + incidente, headers={"User-Agent": str(FakeUserAgent.get_ua().random)}, timeout=13)
             realizando_request = False
         except RequestException as e:
-            print(f'Falha {e} para o incidente {incidente}. Tentando novamente em 5 segundos...')
+            logger.warning(f'Falha {e} para o incidente {incidente}. Tentando novamente em 5 segundos...')
             time.sleep(5)
             realizando_request = True
     
@@ -154,30 +157,32 @@ def processar_mensagem_aba(msg):
     else:
         if response.status_code == 404 and msg_value == 'sessao':
             return
-        print(f"Status code {response.status_code} para o incidente {incidente} e a aba {msg_value}")
+        logger.info(f"Status code {response.status_code} para o incidente {incidente} e a aba {msg_value}")
         ProducerKafka.get_producer().produce('abas', msg_value, incidente)
         ProducerKafka.get_producer().flush()
         time.sleep(60)
 
 def main():
-    print("Iniciando o worker...")
     consumer = ConsumerAbas.get_consumer()
-    print("Consumidor iniciado...")
+    logger.info("Consumidor iniciado")
     while True:
         msg = consumer.poll(0.5)
         if msg is None:
-            print("Em espera...")
+            logger.info(".")
         elif msg.error():
-            print("ERROR: %s".format(msg.error()))
+            logger.error(f"{msg.error()}")
         else:
-            print(msg.key().decode('utf-8'))
+            logger.info(f"Processo: {msg.key().decode('utf-8')}")
             processar_mensagem_aba(msg)
 
 if __name__ == '__main__':
+    logging.basicConfig(filename='coleta_abas.log', encoding='utf-8', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(funcName)s - %(message)s')
     try:
+        logger.info("Iniciando o worker")
         main()
     except KeyboardInterrupt:
-        print("Encerrando o worker...")
+        logger.info("KeyboardInterrupt")
     finally:
         # Fecha o consumer e o producer ao finalizar
+        logger.info("Encerrando o worker")
         ConsumerAbas.close_consumer()

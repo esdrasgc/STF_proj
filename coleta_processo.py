@@ -8,9 +8,12 @@ from connect_mongo import MongoDBDatabase
 import time
 import os
 from requests.exceptions import RequestException
+import logging
 # from dotenv import load_dotenv
 
 # load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 class ConsumerIds:
     consumer = None
@@ -150,20 +153,20 @@ def processar_mensagem(msg):
             response = session.get(url, headers={"User-Agent": str(FakeUserAgent.get_ua().random)}, timeout=13)
             realizando_request = False
         except RequestException as e:
-            print(f'Falha {e} para o incidente {id}. Tentando novamente em 5 segundos...')
+            logger.warning(f'Falha {e} para o incidente {id}. Tentando novamente em 5 segundos...')
             time.sleep(5)
             realizando_request = True
     producer = ProducerKafka.get_producer()
     if response.status_code != 200:
         producer.produce('ids_processo', None, str(id))
         producer.flush()
-        print(f"Status code {response.status_code} para o incidente {id}")
+        logger.info(f"Status code {response.status_code} para o incidente {id}")
         time.sleep(60)
     else:
         response.encoding = 'utf-8'
         central_info = coletar_central(response.text)
         if central_info is None:
-            print(f'Id invalido {id}')
+            logger.info(f"Processo {id} invalido")
             return
         produzir_msgs_abas(id)
         salvar_processo_mongo(central_info, id)
@@ -178,27 +181,29 @@ def salvar_processo_mongo(processo, id):
     colecao.insert_one(processo)
 
 def main():
-    print("Iniciando o worker...")
     consumer = ConsumerIds.get_consumer()
-    print("Consumidor iniciado...")
+    logger.info("Consumidor iniciado")
     while True:
         msg = consumer.poll(0.5)
         if msg is None:
-            print("Em espera...")
+            logger.info(".")
         elif msg.error():
-            print("ERROR: %s".format(msg.error()))
+            logger.error(f"{msg.error()}")
         else:
-            print(msg.key().decode('utf-8'))
+            logger.info(f"Processo: {msg.key().decode('utf-8')}")
             processar_mensagem(msg)
 
 
 if __name__ == '__main__':
+    logging.basicConfig(filename='coleta_processo.log', encoding='utf-8', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(funcName)s - %(message)s')
     try:
+        logger.info("Iniciando o worker")
         main()
     except KeyboardInterrupt:
-        print("Encerrando o worker...")
+        logger.info("KeyboardInterrupt")
     finally:
         # Fecha o consumer e o producer ao finalizar
+        logger.info("Encerrando o worker")
         ConsumerIds.close_consumer()
         ProducerKafka.get_producer().flush()
         
