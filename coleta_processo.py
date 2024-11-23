@@ -195,7 +195,7 @@ def main():
 
 
 if __name__ == '__main__':
-    logging.basicConfig(filename='coleta_processo.log', encoding='utf-8', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(funcName)s - %(message)s')
+    logging.basicConfig(filename='coleta_processo.log', encoding='utf-8', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(funcName)s - %(message)s')
     try:
         logger.info("Iniciando o worker")
         main()
