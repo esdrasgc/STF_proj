@@ -1,0 +1,31 @@
+# Project and environment
+project     = "stf-proj"
+environment = "prod"
+
+# Main AWS region for base infrastructure
+aws_main_region = "us-east-1"
+
+# VPC configuration
+vpc_cidr = "10.0.0.0/16"
+
+# Deployment regions
+process_collection_regions = ["us-east-1", "us-west-2", "eu-west-1"]
+tabs_collection_regions    = ["us-east-1", "us-west-2", "eu-central-1", "ap-southeast-1", "sa-east-1"]
+
+# Instance types
+kafka_instance_type    = "t3.large"
+mongodb_instance_type  = "t3.large" 
+process_instance_type  = "t3.medium"
+tabs_instance_type     = "t3.medium"
+
+# Replicas per region
+process_replicas_per_region = 1
+tabs_replicas_per_region    = 5
+
+# MongoDB configuration
+mongodb_username = "root"
+mongodb_password = "replace_with_secure_password"
+mongodb_db       = "stf_data"
+
+# SSH key name
+ssh_key_name = "stf-proj-key"

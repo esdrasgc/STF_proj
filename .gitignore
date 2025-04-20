@@ -4,3 +4,4 @@ __pycache__
 env_ids
 coleta_abas.log
 coleta_processo.log
+terraform.tfvars
