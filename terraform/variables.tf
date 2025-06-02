@@ -9,7 +9,8 @@ variable "environment" {
 }
 
 variable "aws_main_region" {
-  description = "Main AWS region for base infrastructure"
+  description = "Main AWS region for base infrastructure (e.g., Kafka, MongoDB)"
+  type        = string
   default     = "us-east-1"
 }
 
@@ -18,36 +19,36 @@ variable "vpc_cidr" {
   default     = "10.0.0.0/16"
 }
 
-variable "process_collection_regions" {
-  description = "AWS regions where coleta_processo should be deployed"
+variable "active_process_regions" {
+  description = "List of AWS regions where coleta_processo should be actively deployed."
   type        = list(string)
-  default     = ["us-east-1", "us-west-2", "eu-west-1"]
+  default     = ["us-east-1"] # Example default
 }
 
-variable "tabs_collection_regions" {
-  description = "AWS regions where coleta_aba should be deployed"
+variable "active_tabs_regions" {
+  description = "List of AWS regions where coleta_aba should be actively deployed."
   type        = list(string)
-  default     = ["us-east-1", "us-west-2", "eu-central-1", "ap-southeast-1", "sa-east-1"]
+  default     = ["us-east-1", "us-west-2"] # Example default
 }
 
 variable "kafka_instance_type" {
   description = "EC2 instance type for Kafka/ZooKeeper"
-  default     = "t3.large"
+  default     = "t3.medium"
 }
 
 variable "mongodb_instance_type" {
   description = "EC2 instance type for MongoDB"
-  default     = "t3.large"
+  default     = "t3.medium"
 }
 
 variable "process_instance_type" {
   description = "EC2 instance type for coleta_processo"
-  default     = "t3.medium"
+  default     = "t3.small"
 }
 
 variable "tabs_instance_type" {
   description = "EC2 instance type for coleta_aba"
-  default     = "t3.medium"
+  default     = "t3.small"
 }
 
 variable "process_replicas_per_region" {
@@ -57,7 +58,7 @@ variable "process_replicas_per_region" {
 
 variable "tabs_replicas_per_region" {
   description = "Number of coleta_aba instances per region"
-  default     = 5
+  default     = 1
 }
 
 variable "mongodb_username" {
@@ -77,6 +78,13 @@ variable "mongodb_db" {
 }
 
 variable "ssh_key_name" {
-  description = "SSH key name for EC2 instances"
+  description = "Name of the SSH key pair to use for EC2 instances"
+  type        = string
   default     = "stf-proj-key"
+}
+
+variable "git_repo_url" {
+  description = "URL of the Git repository containing the application code"
+  type        = string
+  default     = "https://github.com/esdrasgc/STF_proj/tree/master" # Replace with your actual repo URL
 }

@@ -9,18 +9,18 @@ output "kafka_endpoint" {
 }
 
 output "mongodb_endpoint" {
-  description = "MongoDB endpoint"
+  description = "MongoDB public endpoint"
   value       = module.mongodb.mongodb_endpoint
 }
 
 output "process_regions" {
-  description = "Regions where coleta_processo is deployed"
-  value       = var.process_collection_regions
+  description = "Regions where coleta_processo is actively deployed"
+  value       = var.active_process_regions
 }
 
 output "tabs_regions" {
-  description = "Regions where coleta_aba is deployed"
-  value       = var.tabs_collection_regions
+  description = "Regions where coleta_aba is actively deployed"
+  value       = var.active_tabs_regions
 }
 
 output "process_instances" {

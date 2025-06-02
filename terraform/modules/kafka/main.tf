@@ -1,10 +1,24 @@
+locals {
+  instance_architecture = substr(var.instance_type, 0, 3) == "t4g" ? "arm64" : "x86_64"
+}
+
 data "aws_ami" "amazon_linux" {
   most_recent = true
   owners      = ["amazon"]
 
   filter {
     name   = "name"
-    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+    values = ["amzn2-ami-hvm-*-gp2"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  filter {
+    name   = "architecture"
+    values = [local.instance_architecture]
   }
 }
 

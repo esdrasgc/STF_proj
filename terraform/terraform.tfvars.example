@@ -8,13 +8,16 @@ aws_main_region = "us-east-1"
 # VPC configuration
 vpc_cidr = "10.0.0.0/16"
 
-# Deployment regions
-process_collection_regions = ["us-east-1", "us-west-2", "eu-west-1"]
-tabs_collection_regions    = ["us-east-1", "us-west-2", "eu-central-1", "ap-southeast-1", "sa-east-1"]
+# --- Control Active Deployment Regions ---
+# List the regions you want to deploy coleta_processo to in this run
+active_process_regions = ["us-east-1", "us-west-2", "eu-west-1"] # Example
+
+# List the regions you want to deploy coleta_aba to in this run
+active_tabs_regions    = ["us-east-1", "us-west-2", "eu-central-1", "ap-southeast-1", "sa-east-1"] # Example
 
 # Instance types
 kafka_instance_type    = "t3.large"
-mongodb_instance_type  = "t3.large" 
+mongodb_instance_type  = "t3.large"
 process_instance_type  = "t3.medium"
 tabs_instance_type     = "t3.medium"
 
@@ -24,7 +27,7 @@ tabs_replicas_per_region    = 5
 
 # MongoDB configuration
 mongodb_username = "root"
-mongodb_password = "replace_with_secure_password"
+mongodb_password = "replace_with_secure_password" # IMPORTANT: Replace and secure this!
 mongodb_db       = "stf_data"
 
 # SSH key name

@@ -57,3 +57,8 @@ variable "replicas" {
   description = "Number of replicas per region"
   default     = 1
 }
+
+variable "git_repo_url" {
+  description = "URL of the Git repository for the application code"
+  type        = string
+}

@@ -9,6 +9,6 @@ output "mongodb_private_ip" {
 }
 
 output "mongodb_endpoint" {
-  description = "Endpoint for MongoDB clients to connect to"
-  value       = aws_instance.mongodb.private_ip
+  description = "Public IP of the MongoDB instance"
+  value       = aws_eip.mongodb_eip.public_ip
 }

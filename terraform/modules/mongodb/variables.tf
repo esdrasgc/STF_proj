@@ -10,9 +10,9 @@ variable "vpc_id" {
   description = "VPC ID where MongoDB will be deployed"
 }
 
-variable "private_subnets" {
-  description = "List of private subnet IDs"
-  type        = list(string)
+variable "subnet_id" {
+  description = "ID of the public subnet to deploy MongoDB into"
+  type        = string
 }
 
 variable "security_group" {

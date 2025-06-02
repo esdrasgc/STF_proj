@@ -8,6 +8,12 @@ terraform {
   required_version = ">= 1.0.0"
 }
 
+variable "aws_main_region" {
+  description = "Main AWS region for resource deployment"
+  type        = string
+  default     = "us-east-1"  # You can change this default value as needed
+}
+
 # Default provider for the main region
 provider "aws" {
   region = var.aws_main_region
