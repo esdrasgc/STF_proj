@@ -1,56 +1,13 @@
 services:
-  zookeeper:
-    image: confluentinc/cp-zookeeper:latest
-    container_name: zookeeper
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-    volumes:
-      - zookeeper_data:/var/lib/zookeeper/data
-      - zookeeper_log:/var/lib/zookeeper/log
-    networks:
-      - rede_stf_proj
-
-  kafka_broker:
-    image: confluentinc/cp-kafka:latest
-    container_name: kafka_broker
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
     ports:
-      - "9092:9092"
+      - "5672:5672"
+      - "15672:15672"
     environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka_broker:29092,OUTSIDE://localhost:9092
-      KAFKA_LISTENERS: INSIDE://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
-      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-
-    volumes:
-      - kafka_data:/var/lib/kafka/data
-    depends_on:
-      - zookeeper
-    networks:
-      - rede_stf_proj
-    # healthcheck:
-    #   test: ["CMD", "nc", "-z", "localhost", "9092"]
-    #   interval: 10s
-    #   timeout: 5s
-    #   retries: 5
-
-  kafkacat:
-    image: confluentinc/cp-kafkacat
-    command: sleep infinity
-
-  create_topics:
-    build:
-      context: .
-      dockerfile: create_topics.Dockerfile
-    environment:
-      KAFKA_BROKER_HOST: kafka_broker
-      KAFKA_BROKER_PORT: 29092
-    depends_on:
-      - kafka_broker
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
     networks:
       - rede_stf_proj
 
@@ -83,61 +40,42 @@ services:
     networks:
       - rede_stf_proj
 
+  celery_worker:
+    build:
+      context: .
+      dockerfile: celery_worker.Dockerfile
+    environment:
+      CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//
+      CELERY_RESULT_BACKEND: mongodb://root:example@mongo:27017/celery_results?authSource=admin
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_HOST: mongo
+      MONGO_PORT: 27017
+      MONGO_DB: ${MONGO_DB}
+    depends_on:
+      - rabbitmq
+      - mongo
+    networks:
+      - rede_stf_proj
+    restart: always
+
   coleta_ids:
     build:
       context: .
       dockerfile: coletor_ids.Dockerfile
     environment:
-      KAFKA_BROKER_HOST: kafka_broker
-      KAFKA_BROKER_PORT: 29092
+      CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//
+      CELERY_RESULT_BACKEND: mongodb://root:example@mongo:27017/celery_results?authSource=admin
     ports:
       - "80:8000"
     depends_on:
-      - kafka_broker
+      - rabbitmq
     networks:
       - rede_stf_proj
 
-  coleta_processo:
-    build:
-      context: .
-      dockerfile: coleta_processo.Dockerfile
-    environment:
-      KAFKA_BROKER_HOST: kafka_broker
-      KAFKA_BROKER_PORT: 29092
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
-      MONGO_HOST: mongo
-      MONGO_PORT: 27017
-      MONGO_DB: ${MONGO_DB}
-    depends_on:
-      - kafka_broker
-      - mongo
-    networks:
-      - rede_stf_proj
-    restart: always
+  # coleta_processo removed; handled by celery_worker
 
-  coleta_aba:
-    build:
-      context: .
-      dockerfile: coleta_aba.Dockerfile
-    environment:
-      KAFKA_BROKER_HOST: kafka_broker
-      KAFKA_BROKER_PORT: 29092
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
-      MONGO_HOST: mongo
-      MONGO_PORT: 27017
-      MONGO_DB: ${MONGO_DB}
-    depends_on:
-      - kafka_broker
-      - mongo
-    networks:
-      - rede_stf_proj
-    restart: always
-    deploy:
-      mode: replicated
-      replicas: 5
-      endpoint_mode: vip
+  # coleta_aba removed; handled by celery_worker
 
 networks:
   rede_stf_proj:
@@ -145,6 +83,3 @@ networks:
 
 volumes:
   mongo_data:
-  kafka_data:
-  zookeeper_data:
-  zookeeper_log:

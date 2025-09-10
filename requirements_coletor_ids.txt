@@ -1,7 +1,6 @@
 annotated-types==0.7.0
 anyio==4.6.2.post1
 click==8.1.7
-confluent-kafka==2.6.0
 fastapi==0.115.4
 h11==0.14.0
 idna==3.10
@@ -12,3 +11,9 @@ sniffio==1.3.1
 starlette==0.41.2
 typing_extensions==4.12.2
 uvicorn==0.32.0
+
+# Celery client to enqueue tasks to RabbitMQ broker
+celery==5.3.6
+
+# Required for Celery MongoDB results backend
+pymongo==4.10.1

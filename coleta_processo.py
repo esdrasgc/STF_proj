@@ -1,4 +1,3 @@
-from confluent_kafka import Consumer, Producer
 from bs4 import BeautifulSoup
 import json
 import requests
@@ -9,38 +8,15 @@ import time
 import os
 from requests.exceptions import RequestException
 import logging
-# from dotenv import load_dotenv
 
-# load_dotenv()
+from celery_app import app
 
 logger = logging.getLogger(__name__)
-
-class ConsumerIds:
-    consumer = None
-    topic = 'ids_processo'
-    config = {
-        'bootstrap.servers': f'{os.getenv('KAFKA_BROKER_HOST')}:{os.getenv('KAFKA_BROKER_PORT')}',
-        'group.id': 'coleta_processos',
-        'auto.offset.reset': 'earliest'
-    }
-
-    @classmethod
-    def init_consumer(cls):
-        cls.consumer = Consumer(cls.config)
-        cls.consumer.subscribe([cls.topic])
-        return cls.consumer
-    
-    @classmethod
-    def get_consumer(cls):
-        if cls.consumer is None:
-            cls.init_consumer()
-        return cls.consumer
-    
-    @classmethod
-    def close_consumer(cls):
-        if cls.close_consumer is not None:
-            cls.consumer.close()
-            cls.consumer = None      
+try:
+    import urllib3
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+except Exception:
+    pass
 
 class FakeUserAgent:
     ua = None
@@ -56,25 +32,6 @@ class FakeUserAgent:
         if cls.ua is None:
             cls.init_ua()
         return cls.ua
-
-class ProducerKafka:
-    producer = None
-    config = {
-        'bootstrap.servers': f"{os.getenv('KAFKA_BROKER_HOST')}:{os.getenv('KAFKA_BROKER_PORT')}",
-        'acks': '1'
-    }
-
-    @classmethod
-    def init_producer(cls):
-        cls.producer = Producer(cls.config)
-        return cls.producer
-    
-    @classmethod
-    def get_producer(cls):
-        if cls.producer is None:
-            cls.init_producer()
-        return cls.producer
-    
 
 def coletar_central(html_source):
     """
@@ -130,38 +87,36 @@ def coletar_central(html_source):
     return central_info
 
 
-def produzir_msgs_abas(id): 
-    producer = ProducerKafka.get_producer()
-    topic = 'abas'
+def produzir_msgs_abas(id):
     id = str(id)
-    producer.produce(topic, 'andamentos', id)
-    producer.produce(topic, 'deslocamentos', id)
-    producer.produce(topic, 'info', id)
-    producer.produce(topic, 'partes',  id)
-    producer.produce(topic, 'recursos', id)
-    producer.produce(topic, 'sessao', id)
-    producer.flush()
+    abas = ['andamentos', 'deslocamentos', 'info', 'partes', 'recursos', 'sessao']
+    for aba in abas:
+        # Enfileira a tarefa de processamento da aba específica
+        app.send_task('tasks_abas.processar', args=[id, aba])
 
 
-def processar_mensagem(msg):
-    id = msg.key().decode('utf-8')
+@app.task(name='tasks_processo.processar', bind=True, autoretry_for=(RequestException,), retry_backoff=True, retry_jitter=True, retry_kwargs={'max_retries': 12})
+def processar_mensagem(self, id: str):
     url = f'https://portal.stf.jus.br/processos/verImpressao.asp?imprimir=true&incidente={id}'
     session = requests.Session()
     realizando_request = True
     while realizando_request:
         try:
-            response = session.get(url, headers={"User-Agent": str(FakeUserAgent.get_ua().random)}, timeout=13)
+            response = session.get(
+                url,
+                headers={"User-Agent": str(FakeUserAgent.get_ua().random)},
+                timeout=13,
+                verify=False,
+            )
             realizando_request = False
         except RequestException as e:
             logger.warning(f'Falha {e} para o incidente {id}. Tentando novamente em 5 segundos...')
             time.sleep(5)
             realizando_request = True
-    producer = ProducerKafka.get_producer()
     if response.status_code != 200:
-        producer.produce('ids_processo', None, str(id))
-        producer.flush()
         logger.info(f"Status code {response.status_code} para o incidente {id}")
-        time.sleep(60)
+        # Retry task later due to possible temporary block
+        raise self.retry(countdown=60)
     else:
         response.encoding = 'utf-8'
         central_info = coletar_central(response.text)
@@ -180,30 +135,7 @@ def salvar_processo_mongo(processo, id):
     colecao = db.processos_unificados
     colecao.insert_one(processo)
 
-def main():
-    consumer = ConsumerIds.get_consumer()
-    logger.info("Consumidor iniciado")
-    while True:
-        msg = consumer.poll(0.5)
-        if msg is None:
-            logger.info(".")
-        elif msg.error():
-            logger.error(f"{msg.error()}")
-        else:
-            logger.info(f"Processo: {msg.key().decode('utf-8')}")
-            processar_mensagem(msg)
-
-
 if __name__ == '__main__':
     logging.basicConfig(filename='coleta_processo.log', encoding='utf-8', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(funcName)s - %(message)s')
-    try:
-        logger.info("Iniciando o worker")
-        main()
-    except KeyboardInterrupt:
-        logger.info("KeyboardInterrupt")
-    finally:
-        # Fecha o consumer e o producer ao finalizar
-        logger.info("Encerrando o worker")
-        ConsumerIds.close_consumer()
-        ProducerKafka.get_producer().flush()
+    logger.info("Módulo de tarefas Celery carregado: tasks_processo.processar")
         

@@ -1,4 +1,4 @@
-from confluent_kafka import Consumer, Producer
+from celery_app import app
 import requests
 from fake_useragent import UserAgent
 from scrapping_codes.andamentos import coletar_andamentos
@@ -16,51 +16,11 @@ from connect_mongo import MongoDBDatabase
 import logging
 
 logger = logging.getLogger(__name__)
-
-class ProducerKafka:
-    producer = None
-    config = {
-        'bootstrap.servers': f"{os.getenv('KAFKA_BROKER_HOST')}:{os.getenv('KAFKA_BROKER_PORT')}",
-        'acks': '1'
-    }
-
-    @classmethod
-    def init_producer(cls):
-        cls.producer = Producer(cls.config)
-        return cls.producer
-    
-    @classmethod
-    def get_producer(cls):
-        if cls.producer is None:
-            cls.init_producer()
-        return cls.producer
-
-class ConsumerAbas:
-    consumer = None
-    topic = 'abas'
-    config = {
-        'bootstrap.servers': f"{os.getenv('KAFKA_BROKER_HOST')}:{os.getenv('KAFKA_BROKER_PORT')}",
-        'group.id': 'coleta_abas',
-        'auto.offset.reset': 'earliest'
-    }
-
-    @classmethod
-    def init_consumer(cls):
-        cls.consumer = Consumer(cls.config)
-        cls.consumer.subscribe([cls.topic])
-        return cls.consumer
-    
-    @classmethod
-    def get_consumer(cls):
-        if cls.consumer is None:
-            cls.init_consumer()
-        return cls.consumer
-    
-    @classmethod
-    def close_consumer(cls):
-        if cls.close_consumer is not None:
-            cls.consumer.close()
-            cls.consumer = None  
+try:
+    import urllib3
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+except Exception:
+    pass
 
 class FakeUserAgent:
     ua = None
@@ -123,66 +83,44 @@ def processar_html_aba_e_salvar(html, id, tipo_aba):
         raise ValueError(f"Tipo de aba desconhecido: {tipo_aba}")
     salvar_dados_mongo(dados, id, tipo_aba)
 
-def processar_mensagem_aba(msg):
-    # Obtém o incidente do processo
-    incidente = msg.key().decode('utf-8')
-    
-    # Obtém o valor da mensagem
-    msg_value = msg.value().decode('utf-8')
-    
+@app.task(name='tasks_abas.processar', bind=True, autoretry_for=(RequestException,), retry_backoff=True, retry_jitter=True, retry_kwargs={'max_retries': 12})
+def processar(self, id: str, aba: str):
     # Obtém a URL da aba
-    url = aba_2_url_dict[msg_value]
+    url = aba_2_url_dict[aba]
     
     # Realiza a requisição HTTP
     session = requests.Session()
     realizando_request = True
     while realizando_request:
         try:
-            response = session.get(url + incidente, headers={"User-Agent": str(FakeUserAgent.get_ua().random)}, timeout=13)
+            response = session.get(
+                url + id,
+                headers={"User-Agent": str(FakeUserAgent.get_ua().random)},
+                timeout=13,
+                verify=False,
+            )
             realizando_request = False
         except RequestException as e:
-            logger.warning(f'Falha {e} para o incidente {incidente}. Tentando novamente em 5 segundos...')
+            logger.warning(f'Falha {e} para o incidente {id}. Tentando novamente em 5 segundos...')
             time.sleep(5)
             realizando_request = True
     
     # Verifica se a requisição foi bem-sucedida
     if response.status_code == 200:
         response.encoding = 'utf-8'
-        if msg_value == 'sessao':
-            processar_sessao_virtual_e_salvar(response.json(), incidente)
+        if aba == 'sessao':
+            processar_sessao_virtual_e_salvar(response.json(), id)
         else:
             if len(response.text) > 0:
-                processar_html_aba_e_salvar(response.text, incidente, msg_value)
+                processar_html_aba_e_salvar(response.text, id, aba)
 
     else:
-        if response.status_code == 404 and msg_value == 'sessao':
+        if response.status_code == 404 and aba == 'sessao':
             return
-        logger.info(f"Status code {response.status_code} para o incidente {incidente} e a aba {msg_value}")
-        ProducerKafka.get_producer().produce('abas', msg_value, incidente)
-        ProducerKafka.get_producer().flush()
-        time.sleep(60)
-
-def main():
-    consumer = ConsumerAbas.get_consumer()
-    logger.info("Consumidor iniciado")
-    while True:
-        msg = consumer.poll(0.5)
-        if msg is None:
-            logger.info(".")
-        elif msg.error():
-            logger.error(f"{msg.error()}")
-        else:
-            logger.info(f"Processo: {msg.key().decode('utf-8')}")
-            processar_mensagem_aba(msg)
+        logger.info(f"Status code {response.status_code} para o incidente {id} e a aba {aba}")
+        # Retry later due to possible temporary block
+        raise self.retry(countdown=60)
 
 if __name__ == '__main__':
     logging.basicConfig(filename='coleta_abas.log', encoding='utf-8', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(funcName)s - %(message)s')
-    try:
-        logger.info("Iniciando o worker")
-        main()
-    except KeyboardInterrupt:
-        logger.info("KeyboardInterrupt")
-    finally:
-        # Fecha o consumer e o producer ao finalizar
-        logger.info("Encerrando o worker")
-        ConsumerAbas.close_consumer()
+    logger.info("Módulo de tarefas Celery carregado: tasks_abas.processar")
