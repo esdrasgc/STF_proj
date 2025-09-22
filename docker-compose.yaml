@@ -40,6 +40,15 @@ services:
     networks:
       - rede_stf_proj
 
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - rede_stf_proj
+    restart: always
+
   celery_worker:
     build:
       context: .
@@ -52,9 +61,24 @@ services:
       MONGO_HOST: mongo
       MONGO_PORT: 27017
       MONGO_DB: ${MONGO_DB}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_DB: 0
+      # Rate limiting e concorrência (configuráveis via .env)
+      MAX_REQUESTS_PER_MINUTE: ${MAX_REQUESTS_PER_MINUTE}
+      MIN_DELAY_PROCESSO: ${MIN_DELAY_PROCESSO}
+      MAX_DELAY_PROCESSO: ${MAX_DELAY_PROCESSO}
+      MIN_DELAY_ABA: ${MIN_DELAY_ABA}
+      MAX_DELAY_ABA: ${MAX_DELAY_ABA}
+      RETRY_COUNTDOWN_SECONDS: ${RETRY_COUNTDOWN_SECONDS}
+      MAX_RETRIES: ${MAX_RETRIES}
+      REQUEST_TIMEOUT: ${REQUEST_TIMEOUT}
+      WORKER_CONCURRENCY: ${WORKER_CONCURRENCY}
+      WORKER_PREFETCH_MULTIPLIER: ${WORKER_PREFETCH_MULTIPLIER}
     depends_on:
       - rabbitmq
       - mongo
+      - redis
     networks:
       - rede_stf_proj
     restart: always

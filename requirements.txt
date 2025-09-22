@@ -12,3 +12,6 @@ urllib3==2.2.3
 
 # Celery for task queue with RabbitMQ broker and MongoDB backend
 celery==5.3.6
+
+# Redis for rate limiting
+redis==5.0.8

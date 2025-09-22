@@ -1,4 +1,6 @@
 from celery_app import app
+from rate_limiter import rate_limiter
+from config_rate_limit import config
 import requests
 from fake_useragent import UserAgent
 from scrapping_codes.andamentos import coletar_andamentos
@@ -83,26 +85,42 @@ def processar_html_aba_e_salvar(html, id, tipo_aba):
         raise ValueError(f"Tipo de aba desconhecido: {tipo_aba}")
     salvar_dados_mongo(dados, id, tipo_aba)
 
-@app.task(name='tasks_abas.processar', bind=True, autoretry_for=(RequestException,), retry_backoff=True, retry_jitter=True, retry_kwargs={'max_retries': 12})
+@app.task(name='tasks_abas.processar', bind=True, autoretry_for=(RequestException,), retry_backoff=True, retry_jitter=True, retry_kwargs={'max_retries': config.MAX_RETRIES})
 def processar(self, id: str, aba: str):
+    # Aguarda por uma slot disponível no rate limiter (chave global)
+    global_key = "stf_global"
+    if not rate_limiter.wait_for_available_slot(global_key, max_wait_time=config.RATE_LIMITER_MAX_WAIT):
+        logger.error(f"Timeout no rate limiter para aba {aba} do processo {id}")
+        raise self.retry(countdown=config.RETRY_COUNTDOWN_SECONDS)
+    
     # Obtém a URL da aba
     url = aba_2_url_dict[aba]
+    
+    # Log do rate limiting
+    usage = rate_limiter.get_current_usage(global_key)
+    logger.info(f"Rate limiter status (global) para aba {aba}: {usage}")
     
     # Realiza a requisição HTTP
     session = requests.Session()
     realizando_request = True
     while realizando_request:
         try:
+            # Delay adicional entre requisições usando configurações
+            import random
+            delay = random.uniform(config.MIN_DELAY_ABA, config.MAX_DELAY_ABA)
+            logger.info(f"Aguardando {delay:.1f}s antes da requisição para aba {aba} do processo {id}")
+            time.sleep(delay)
+            
             response = session.get(
                 url + id,
                 headers={"User-Agent": str(FakeUserAgent.get_ua().random)},
-                timeout=13,
+                timeout=config.REQUEST_TIMEOUT,
                 verify=False,
             )
             realizando_request = False
         except RequestException as e:
-            logger.warning(f'Falha {e} para o incidente {id}. Tentando novamente em 5 segundos...')
-            time.sleep(5)
+            logger.warning(f'Falha {e} para o incidente {id} aba {aba}. Tentando novamente em 10 segundos...')
+            time.sleep(10)  # Aumentado de 5 para 10 segundos
             realizando_request = True
     
     # Verifica se a requisição foi bem-sucedida
@@ -119,7 +137,7 @@ def processar(self, id: str, aba: str):
             return
         logger.info(f"Status code {response.status_code} para o incidente {id} e a aba {aba}")
         # Retry later due to possible temporary block
-        raise self.retry(countdown=60)
+        raise self.retry(countdown=config.RETRY_COUNTDOWN_SECONDS)
 
 if __name__ == '__main__':
     logging.basicConfig(filename='coleta_abas.log', encoding='utf-8', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(funcName)s - %(message)s')

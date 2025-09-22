@@ -17,7 +17,9 @@ COPY connect_mongo.py /app/
 COPY coleta_processo.py /app/
 COPY coleta_aba.py /app/
 COPY celery_app.py /app/
+COPY rate_limiter.py /app/
+COPY config_rate_limit.py /app/
 
-# Default command: start Celery worker listening to both queues
-# Increase concurrency as needed or control via docker-compose
-CMD ["celery", "-A", "celery_app", "worker", "-Q", "processo,abas", "--loglevel=INFO"]
+# Default command: start Celery worker with explicit concurrency and prefetch (controlled via env)
+# Use shell form to allow env variable expansion
+CMD sh -c "celery -A celery_app worker -Q processo,abas --loglevel=INFO -c ${WORKER_CONCURRENCY:-2} --prefetch-multiplier=${WORKER_PREFETCH_MULTIPLIER:-1} -Ofair"
