@@ -35,7 +35,7 @@ app.conf.include = [
 
 # Optional explicit imports (safe-guard during worker boot)
 try:
-    import coleta_processo  # noqa: F401
+    import coleta_pocesso  # noqa: F401
     import coleta_aba  # noqa: F401
 except Exception:
     pass
