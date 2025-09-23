@@ -81,21 +81,10 @@ services:
       - redis
     networks:
       - rede_stf_proj
-    restart: always
-
-  coleta_ids:
-    build:
-      context: .
-      dockerfile: coletor_ids.Dockerfile
-    environment:
-      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
-      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
     ports:
       - "80:8000"
-    depends_on:
-      - rabbitmq
-    networks:
-      - rede_stf_proj
+    restart: always
+
 
 networks:
   rede_stf_proj:
