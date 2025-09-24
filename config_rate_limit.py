@@ -33,6 +33,10 @@ class RateLimitConfig:
     
     # Timeouts
     RATE_LIMITER_MAX_WAIT = int(os.getenv('RATE_LIMITER_MAX_WAIT', 300))  # 5 minutos
+
+    # Cadências de despacho por fila (em segundos por tarefa)
+    SECS_PER_TASK_PROCESSO = float(os.getenv('SECS_PER_TASK_PROCESSO', 2.0))
+    SECS_PER_TASK_ABAS = float(os.getenv('SECS_PER_TASK_ABAS', 1.0))
     
     @classmethod
     def get_config_summary(cls):

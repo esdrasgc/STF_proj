@@ -10,8 +10,8 @@ from requests.exceptions import RequestException
 import logging
 
 from celery_app import app
-from rate_limiter import rate_limiter
 from config_rate_limit import config
+from rate_limit_dispatcher import is_blocked, set_global_block
 
 logger = logging.getLogger(__name__)
 try:
@@ -93,34 +93,30 @@ def produzir_msgs_abas(id):
     id = str(id)
     abas = ['andamentos', 'deslocamentos', 'info', 'partes', 'recursos', 'sessao']
     for aba in abas:
-        # Enfileira a tarefa de processamento da aba específica
-        app.send_task('tasks_abas.processar', args=[id, aba])
+        # Enfileira a tarefa de processamento da aba específica na fila de holding
+        app.send_task('tasks_abas.processar', args=[id, aba], queue="rate_limited_abas")
 
 
 @app.task(name='tasks_processo.processar', bind=True, autoretry_for=(RequestException,), retry_backoff=True, retry_jitter=True, retry_kwargs={'max_retries': config.MAX_RETRIES})
 def processar_mensagem(self, id: str):
-    # Aguarda por uma slot disponível no rate limiter (chave global)
-    global_key = "stf_global"
-    logger.info(f"[Processo] Tentando adquirir slot no rate limiter key={global_key} id={id}")
-    if not rate_limiter.wait_for_available_slot(global_key, max_wait_time=config.RATE_LIMITER_MAX_WAIT):
-        logger.error(f"Timeout no rate limiter para processo {id}")
-        raise self.retry(countdown=config.RETRY_COUNTDOWN_SECONDS)
+    # Respeita bloqueio global (ex.: após 403)
+    if is_blocked():
+        logger.warning(f"[Processo] Bloqueio global ativo, reagendando id={id}")
+        raise self.retry(countdown=30)
     
     url = f'https://portal.stf.jus.br/processos/verImpressao.asp?imprimir=true&incidente={id}'
     session = requests.Session()
     realizando_request = True
     
-    # Log do rate limiting
-    usage = rate_limiter.get_current_usage(global_key)
-    logger.info(f"Rate limiter status: {usage}")
+    # (Dispatcher controla cadência por fila)
     
     while realizando_request:
         try:
-            # Delay adicional entre requisições usando configurações
-            import random
-            delay = random.uniform(config.MIN_DELAY_PROCESSO, config.MAX_DELAY_PROCESSO)
-            logger.info(f"Aguardando {delay:.1f}s antes da requisição para processo {id}")
-            time.sleep(delay)
+            # # Delay adicional entre requisições usando configurações
+            # import random
+            # delay = random.uniform(config.MIN_DELAY_PROCESSO, config.MAX_DELAY_PROCESSO)
+            # logger.info(f"Aguardando {delay:.1f}s antes da requisição para processo {id}")
+            # time.sleep(delay)
             
             response = session.get(
                 url,
@@ -135,7 +131,11 @@ def processar_mensagem(self, id: str):
             realizando_request = True
     if response.status_code != 200:
         logger.info(f"Status code {response.status_code} para o incidente {id}")
-        # Retry task later due to possible temporary block - aumentado para 5 minutos
+        # Se 403, ativa bloqueio global por 2 minutos e reagenda cedo
+        if response.status_code == 403:
+            set_global_block(120)
+            raise self.retry(countdown=120)
+        # Outros status: reintentar com countdown padrão
         raise self.retry(countdown=config.RETRY_COUNTDOWN_SECONDS)
     else:
         response.encoding = 'utf-8'

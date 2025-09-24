@@ -1,5 +1,6 @@
 import os
 from celery import Celery
+from kombu import Queue
 from config_rate_limit import config
 
 # Broker (RabbitMQ) and Backend (MongoDB) configuration from environment
@@ -34,10 +35,19 @@ app.conf.update(
     task_max_retries=config.MAX_RETRIES
 )
 
+# Declare queues so RabbitMQ creates them ahead of time, including holding queues
+app.conf.task_queues = (
+    Queue("processo"),
+    Queue("abas"),
+    Queue("rate_limited_processo"),
+    Queue("rate_limited_abas"),
+)
+
 # Ensure tasks are registered when worker starts
 app.conf.include = [
     'coleta_processo',
     'coleta_aba',
+    'rate_limit_dispatcher',
 ]
 
 # Optional explicit imports (safe-guard during worker boot)

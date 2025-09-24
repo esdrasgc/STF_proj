@@ -24,6 +24,7 @@ COPY celery_app.py /app/
 COPY rate_limiter.py /app/
 COPY config_rate_limit.py /app/
 COPY coletor_range_ids.py /app/
+COPY rate_limit_dispatcher.py /app/
 
 # Start script to run FastAPI (coletor) and Celery worker together
 COPY start_worker.sh /app/start_worker.sh
@@ -31,6 +32,9 @@ RUN chmod +x /app/start_worker.sh
 
 # Expose FastAPI port
 EXPOSE 8000
+
+# Expose Flower port
+EXPOSE 5555
 
 # Default command: start FastAPI + Celery worker. Use JSON to preserve signals.
 CMD ["sh", "/app/start_worker.sh"]

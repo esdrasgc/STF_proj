@@ -17,10 +17,11 @@ uvicorn coletor_range_ids:app \
 # Small delay to ensure API starts
 sleep 1
 
-echo "[start_worker] Starting Celery worker with concurrency=${WORKER_CONCURRENCY} prefetch=${WORKER_PREFETCH_MULTIPLIER}"
+echo "[start_worker] Starting Celery worker (+beat) with concurrency=${WORKER_CONCURRENCY} prefetch=${WORKER_PREFETCH_MULTIPLIER}"
 exec celery -A celery_app worker \
   -Q processo,abas \
   --loglevel=INFO \
   -c ${WORKER_CONCURRENCY} \
   --prefetch-multiplier=${WORKER_PREFETCH_MULTIPLIER} \
-  -Ofair
+  -Ofair \
+  --beat

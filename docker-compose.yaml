@@ -66,15 +66,17 @@ services:
       REDIS_DB: 0
       # Rate limiting e concorrência (configuráveis via .env)
       MAX_REQUESTS_PER_MINUTE: ${MAX_REQUESTS_PER_MINUTE}
-      MIN_DELAY_PROCESSO: ${MIN_DELAY_PROCESSO}
-      MAX_DELAY_PROCESSO: ${MAX_DELAY_PROCESSO}
-      MIN_DELAY_ABA: ${MIN_DELAY_ABA}
-      MAX_DELAY_ABA: ${MAX_DELAY_ABA}
+      # MIN_DELAY_PROCESSO: ${MIN_DELAY_PROCESSO}
+      # MAX_DELAY_PROCESSO: ${MAX_DELAY_PROCESSO}
+      # MIN_DELAY_ABA: ${MIN_DELAY_ABA}
+      # MAX_DELAY_ABA: ${MAX_DELAY_ABA}
       RETRY_COUNTDOWN_SECONDS: ${RETRY_COUNTDOWN_SECONDS}
       MAX_RETRIES: ${MAX_RETRIES}
       REQUEST_TIMEOUT: ${REQUEST_TIMEOUT}
       WORKER_CONCURRENCY: ${WORKER_CONCURRENCY}
       WORKER_PREFETCH_MULTIPLIER: ${WORKER_PREFETCH_MULTIPLIER}
+      SECS_PER_TASK_PROCESSO: ${SECS_PER_TASK_PROCESSO}
+      SECS_PER_TASK_ABAS: ${SECS_PER_TASK_ABAS}
     depends_on:
       - rabbitmq
       - mongo
@@ -83,6 +85,7 @@ services:
       - rede_stf_proj
     ports:
       - "80:8000"
+      - "5555:5555"
     restart: always
 
 

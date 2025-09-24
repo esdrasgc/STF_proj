@@ -7,7 +7,7 @@ app = FastAPI()
 
 def enqueue_range_ids(start_id: int, end_id: int):
     for i in range(start_id, end_id + 1):
-        celery_app.send_task('tasks_processo.processar', args=[str(i)])
+        celery_app.send_task('tasks_processo.processar', args=[str(i)], queue="rate_limited_processo")
 
 # Rota GET para servir o HTML da interface
 @app.get("/", response_class=HTMLResponse)

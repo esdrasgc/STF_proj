@@ -1,6 +1,6 @@
 from celery_app import app
-from rate_limiter import rate_limiter
 from config_rate_limit import config
+from rate_limit_dispatcher import is_blocked, set_global_block
 import requests
 from fake_useragent import UserAgent
 from scrapping_codes.andamentos import coletar_andamentos
@@ -87,29 +87,26 @@ def processar_html_aba_e_salvar(html, id, tipo_aba):
 
 @app.task(name='tasks_abas.processar', bind=True, autoretry_for=(RequestException,), retry_backoff=True, retry_jitter=True, retry_kwargs={'max_retries': config.MAX_RETRIES})
 def processar(self, id: str, aba: str):
-    # Aguarda por uma slot disponível no rate limiter (chave global)
-    global_key = "stf_global"
-    if not rate_limiter.wait_for_available_slot(global_key, max_wait_time=config.RATE_LIMITER_MAX_WAIT):
-        logger.error(f"Timeout no rate limiter para aba {aba} do processo {id}")
-        raise self.retry(countdown=config.RETRY_COUNTDOWN_SECONDS)
+    # Respeita bloqueio global (ex.: após 403)
+    if is_blocked():
+        logger.warning(f"[Aba] Bloqueio global ativo, reagendando id={id} aba={aba}")
+        raise self.retry(countdown=30)
     
     # Obtém a URL da aba
     url = aba_2_url_dict[aba]
     
-    # Log do rate limiting
-    usage = rate_limiter.get_current_usage(global_key)
-    logger.info(f"Rate limiter status (global) para aba {aba}: {usage}")
+    # (Dispatcher controla cadência por fila)
     
     # Realiza a requisição HTTP
     session = requests.Session()
     realizando_request = True
     while realizando_request:
         try:
-            # Delay adicional entre requisições usando configurações
-            import random
-            delay = random.uniform(config.MIN_DELAY_ABA, config.MAX_DELAY_ABA)
-            logger.info(f"Aguardando {delay:.1f}s antes da requisição para aba {aba} do processo {id}")
-            time.sleep(delay)
+            # # Delay adicional entre requisições usando configurações
+            # import random
+            # delay = random.uniform(config.MIN_DELAY_ABA, config.MAX_DELAY_ABA)
+            # logger.info(f"Aguardando {delay:.1f}s antes da requisição para aba {aba} do processo {id}")
+            # time.sleep(delay)
             
             response = session.get(
                 url + id,
@@ -136,6 +133,9 @@ def processar(self, id: str, aba: str):
         if response.status_code == 404 and aba == 'sessao':
             return
         logger.info(f"Status code {response.status_code} para o incidente {id} e a aba {aba}")
+        if response.status_code == 403:
+            set_global_block(120)
+            raise self.retry(countdown=120)
         # Retry later due to possible temporary block
         raise self.retry(countdown=config.RETRY_COUNTDOWN_SECONDS)
 
