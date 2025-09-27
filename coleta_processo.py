@@ -130,7 +130,7 @@ def processar_mensagem(self, id: str):
             time.sleep(10)  # Aumentado de 5 para 10 segundos
             realizando_request = True
     if response.status_code != 200:
-        logger.info(f"Status code {response.status_code} para o incidente {id}")
+        logger.warning(f"Status code {response.status_code} para o incidente {id}")
         # Se 403, ativa bloqueio global por 2 minutos e reagenda cedo
         if response.status_code == 403:
             set_global_block(120)
@@ -156,6 +156,6 @@ def salvar_processo_mongo(processo, id):
     colecao.insert_one(processo)
 
 if __name__ == '__main__':
-    logging.basicConfig(filename='coleta_processo.log', encoding='utf-8', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(funcName)s - %(message)s')
+    logging.basicConfig(filename='coleta_processo.log', encoding='utf-8', level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(funcName)s - %(message)s')
     logger.info("Módulo de tarefas Celery carregado: tasks_processo.processar")
         

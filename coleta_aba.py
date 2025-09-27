@@ -59,7 +59,6 @@ def salvar_dados_mongo(dados, id, colecao):
     processos_unificado.update_one({'id_incidente': int(id)}, {'$set': dados})
 
 def processar_sessao_virtual_e_salvar(info_sessoes_virtuais, sessao_virtual_id):
-    logger.info(f"Aba: sessao_virtual")
     lista_sessoes_virtuais = []
     for sessao_virtual in info_sessoes_virtuais:
         resultado_sessao_virtual = coletar_sessao_virtual(sessao_virtual["objetoIncidente"]['id'])
@@ -70,7 +69,6 @@ def processar_sessao_virtual_e_salvar(info_sessoes_virtuais, sessao_virtual_id):
     
 
 def processar_html_aba_e_salvar(html, id, tipo_aba):
-    logger.info(f"Aba: {tipo_aba}")
     if tipo_aba == 'andamentos':
         dados = coletar_andamentos(html)
     elif tipo_aba == 'deslocamentos':
@@ -132,7 +130,7 @@ def processar(self, id: str, aba: str):
     else:
         if response.status_code == 404 and aba == 'sessao':
             return
-        logger.info(f"Status code {response.status_code} para o incidente {id} e a aba {aba}")
+        logger.warning(f"Status code {response.status_code} para o incidente {id} e a aba {aba}")
         if response.status_code == 403:
             set_global_block(120)
             raise self.retry(countdown=120)
@@ -140,5 +138,5 @@ def processar(self, id: str, aba: str):
         raise self.retry(countdown=config.RETRY_COUNTDOWN_SECONDS)
 
 if __name__ == '__main__':
-    logging.basicConfig(filename='coleta_abas.log', encoding='utf-8', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(funcName)s - %(message)s')
+    logging.basicConfig(filename='coleta_abas.log', encoding='utf-8', level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(funcName)s - %(message)s')
     logger.info("Módulo de tarefas Celery carregado: tasks_abas.processar")

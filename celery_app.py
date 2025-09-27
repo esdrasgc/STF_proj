@@ -1,4 +1,5 @@
 import os
+import logging
 from celery import Celery
 from kombu import Queue
 from config_rate_limit import config
@@ -42,6 +43,17 @@ app.conf.task_queues = (
     Queue("rate_limited_processo"),
     Queue("rate_limited_abas"),
 )
+
+# Lower Celery internal worker logs as per docs
+try:
+    from celery.worker import strategy as _celery_strategy
+    from celery.app import trace as _celery_trace
+    from celery import beat as _celery_beat 
+    _celery_strategy.logger.setLevel(logging.WARNING)
+    _celery_trace.logger.setLevel(logging.WARNING)
+    _celery_beat.logger.setLevel(logging.WARNING)
+except Exception:
+    pass
 
 # Ensure tasks are registered when worker starts
 app.conf.include = [

@@ -19,7 +19,7 @@ def _pick_from_queue(celeryapp: Celery, queue_name: str) -> typing.Optional[Mess
         with celeryapp.connection_for_write() as conn_w:
             q.bind(conn_w).declare()
     except Exception as e:
-        logger.warning(f"[Dispatcher] Could not declare queue {queue_name}: {e}")
+        logger.debug(f"[Dispatcher] Could not declare queue {queue_name}: {e}")
 
     with celeryapp.connection_for_read() as conn:
         msg = conn.default_channel.basic_get(queue_name, no_ack=True)
@@ -60,7 +60,7 @@ def _publish_task(celeryapp: Celery, message: Message, queue_name: str):
             msg = _message_to_dict(message)
             routing_key = queue_name
             exchange_name = ""  # direct to queue via default (anon) exchange
-            logger.info(
+            logger.debug(
                 f"[Dispatcher] Republishing task {msg['headers'].get('task')} -> queue={queue_name}"
             )
             props = msg.get("properties", {})
@@ -137,7 +137,7 @@ def setup_periodic_dispatchers(sender, **kwargs):
 @celery_app.task(bind=True, name="dispatcher.dispatch_from_rate_limited_processo")
 def dispatch_from_rate_limited_processo(self):
     if _blocked_now():
-        logger.warning("[Dispatcher] Block active, skipping processo dispatch")
+        logger.debug("[Dispatcher] Block active, skipping processo dispatch")
         return
     msg = _pick_from_queue(self.app, "rate_limited_processo")
     if not msg:
@@ -150,7 +150,7 @@ def dispatch_from_rate_limited_processo(self):
 @celery_app.task(bind=True, name="dispatcher.dispatch_from_rate_limited_abas")
 def dispatch_from_rate_limited_abas(self):
     if _blocked_now():
-        logger.warning("[Dispatcher] Block active, skipping abas dispatch")
+        logger.debug("[Dispatcher] Block active, skipping abas dispatch")
         return
     msg = _pick_from_queue(self.app, "rate_limited_abas")
     if not msg:
