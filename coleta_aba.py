@@ -3,6 +3,7 @@ from config_rate_limit import config
 from rate_limit_dispatcher import is_blocked, set_global_block
 import requests
 from fake_useragent import UserAgent
+from aws_ip_rotator import rotate_eip_if_possible
 from scrapping_codes.andamentos import coletar_andamentos
 from scrapping_codes.deslocamentos import coletar_deslocamentos
 from scrapping_codes.informacoes import coletar_informacoes
@@ -55,8 +56,8 @@ def salvar_dados_mongo(dados, id, colecao):
     # registro['id_incidente'] = int(id) 
     # Insere os dados no MongoDB
     col.insert_one({'id_incidente': int(id), 'dados' : registro})
-    processos_unificado = MongoDBDatabase.get_db().processos_unificados
-    processos_unificado.update_one({'id_incidente': int(id)}, {'$set': dados})
+    processos_unificados = MongoDBDatabase.get_db().processos_unificados
+    processos_unificados.update_one({'id_incidente': int(id)}, {'$set': dados})
 
 def processar_sessao_virtual_e_salvar(info_sessoes_virtuais, sessao_virtual_id):
     lista_sessoes_virtuais = []
@@ -132,8 +133,19 @@ def processar(self, id: str, aba: str):
             return
         logger.warning(f"Status code {response.status_code} para o incidente {id} e a aba {aba}")
         if response.status_code == 403:
-            set_global_block(120)
-            raise self.retry(countdown=120)
+            try:
+                rot = rotate_eip_if_possible(reason=f"403 aba {aba} incidente {id}")
+                if rot.get("rotated"):
+                    secs = int(rot.get("min_block_secs", 60))
+                    set_global_block(secs)
+                    raise self.retry(countdown=secs)
+                else:
+                    set_global_block(120)
+                    raise self.retry(countdown=120)
+            except Exception as ex:
+                logger.warning(f"Falha na rotação de EIP: {ex}")
+                set_global_block(120)
+                raise self.retry(countdown=120)
         # Retry later due to possible temporary block
         raise self.retry(countdown=config.RETRY_COUNTDOWN_SECONDS)
 

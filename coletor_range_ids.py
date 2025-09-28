@@ -2,11 +2,14 @@ from fastapi import FastAPI, Form, HTTPException
 from fastapi.responses import HTMLResponse
 from celery_app import app as celery_app
 import os
+import random
 
 app = FastAPI()
 
 def enqueue_range_ids(start_id: int, end_id: int):
-    for i in range(start_id, end_id + 1):
+    ids = list(range(start_id, end_id + 1))
+    random.shuffle(ids)
+    for i in ids:
         celery_app.send_task('tasks_processo.processar', args=[str(i)], queue="rate_limited_processo")
 
 # Rota GET para servir o HTML da interface

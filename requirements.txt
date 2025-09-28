@@ -18,3 +18,4 @@ redis==5.0.8
 
 # Flower for monitoring Celery tasks
 flower==2.0.1
+boto3==1.34.162

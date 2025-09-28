@@ -12,6 +12,7 @@ import logging
 from celery_app import app
 from config_rate_limit import config
 from rate_limit_dispatcher import is_blocked, set_global_block
+from aws_ip_rotator import rotate_eip_if_possible
 
 logger = logging.getLogger(__name__)
 try:
@@ -54,19 +55,19 @@ def coletar_central(html_source):
         central_info['classe_numero'] = classe_numero['value']
     else:
         return None
-    
+     
     # Coletar badges (Processo Físico, Público, Medida Liminar)
     badges = soup.find_all('span', class_='badge')
     central_info['badges'] = [badge.get_text(strip=True) for badge in badges]
-    
+     
     # Coletar número único do processo
     numero_unico_div = soup.find('div', class_='processo-rotulo')
     central_info['numero_unico'] = numero_unico_div.get_text(strip=True) if numero_unico_div else None
-    
+     
     # Coletar o título da classe processual (Arguição de Descumprimento de Preceito Fundamental)
     classe_processo_div = soup.find('div', class_='processo-classe')
     central_info['classe_processo'] = classe_processo_div.get_text(strip=True) if classe_processo_div else None
-    
+     
     # Coletar o relator do processo
     processo_dados_divs = soup.find_all('div', class_='processo-dados')
     for div in processo_dados_divs:
@@ -103,13 +104,13 @@ def processar_mensagem(self, id: str):
     if is_blocked():
         logger.warning(f"[Processo] Bloqueio global ativo, reagendando id={id}")
         raise self.retry(countdown=30)
-    
+     
     url = f'https://portal.stf.jus.br/processos/verImpressao.asp?imprimir=true&incidente={id}'
     session = requests.Session()
     realizando_request = True
-    
+     
     # (Dispatcher controla cadência por fila)
-    
+     
     while realizando_request:
         try:
             # # Delay adicional entre requisições usando configurações
@@ -117,7 +118,7 @@ def processar_mensagem(self, id: str):
             # delay = random.uniform(config.MIN_DELAY_PROCESSO, config.MAX_DELAY_PROCESSO)
             # logger.info(f"Aguardando {delay:.1f}s antes da requisição para processo {id}")
             # time.sleep(delay)
-            
+             
             response = session.get(
                 url,
                 headers={"User-Agent": str(FakeUserAgent.get_ua().random)},
@@ -131,11 +132,22 @@ def processar_mensagem(self, id: str):
             realizando_request = True
     if response.status_code != 200:
         logger.warning(f"Status code {response.status_code} para o incidente {id}")
-        # Se 403, ativa bloqueio global por 2 minutos e reagenda cedo
+        # Se 403, tenta rotacionar o EIP na AWS (se habilitado) e aplica bloqueio curto
         if response.status_code == 403:
-            set_global_block(120)
-            raise self.retry(countdown=120)
-        # Outros status: reintentar com countdown padrão
+            try:
+                rot = rotate_eip_if_possible(reason=f"403 processo {id}")
+                if rot.get("rotated"):
+                    secs = int(rot.get("min_block_secs", 60))
+                    set_global_block(secs)
+                    raise self.retry(countdown=secs)
+                else:
+                    set_global_block(120)
+                    raise self.retry(countdown=120)
+            except Exception as ex:
+                logger.warning(f"Falha na rotação de EIP: {ex}")
+                set_global_block(120)
+                raise self.retry(countdown=120)
+        # Outros status: re intentar com countdown padrão
         raise self.retry(countdown=config.RETRY_COUNTDOWN_SECONDS)
     else:
         response.encoding = 'utf-8'
@@ -158,4 +170,3 @@ def salvar_processo_mongo(processo, id):
 if __name__ == '__main__':
     logging.basicConfig(filename='coleta_processo.log', encoding='utf-8', level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(funcName)s - %(message)s')
     logger.info("Módulo de tarefas Celery carregado: tasks_processo.processar")
-        
