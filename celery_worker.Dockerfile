@@ -20,6 +20,7 @@ COPY coleta_processo.py /app/
 COPY coleta_aba.py /app/
 COPY celery_app.py /app/
 COPY coletor_range_ids.py /app/
+COPY stf_pause.py /app/
 COPY start_worker.sh /app/start_worker.sh
 
 # Start script and port for FastAPI

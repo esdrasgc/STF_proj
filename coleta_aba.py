@@ -1,4 +1,5 @@
 from celery_app import app
+from stf_pause import pause_consumption
 import requests
 from fake_useragent import UserAgent
 from scrapping_codes.andamentos import coletar_andamentos
@@ -118,6 +119,8 @@ def processar(self, id: str, aba: str):
         if response.status_code == 404 and aba == 'sessao':
             return
         logger.info(f"Status code {response.status_code} para o incidente {id} e a aba {aba}")
+        if response.status_code == 403:
+            pause_consumption()
         # Retry later due to possible temporary block
         raise self.retry(countdown=60)
 

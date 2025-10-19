@@ -10,6 +10,7 @@ from requests.exceptions import RequestException
 import logging
 
 from celery_app import app
+from stf_pause import pause_consumption
 
 logger = logging.getLogger(__name__)
 try:
@@ -115,6 +116,9 @@ def processar_mensagem(self, id: str):
             realizando_request = True
     if response.status_code != 200:
         logger.info(f"Status code {response.status_code} para o incidente {id}")
+        # On 403, pause queue consumption temporarily to avoid hammering
+        if response.status_code == 403:
+            pause_consumption()
         # Retry task later due to possible temporary block
         raise self.retry(countdown=60)
     else:
